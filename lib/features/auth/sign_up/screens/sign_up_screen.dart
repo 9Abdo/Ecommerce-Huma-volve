@@ -1,3 +1,6 @@
+import 'package:ecommerce_app_huma_volve/core/network/client_network.dart';
+import 'package:ecommerce_app_huma_volve/features/auth/sign_up/models/register_request.dart';
+import 'package:ecommerce_app_huma_volve/features/auth/sign_up/services/register_services.dart';
 import 'package:flutter/material.dart';
 
 import '../../../../core/widgets/custom_text_field.dart';
@@ -17,13 +20,54 @@ class _SignUpScreenState extends State<SignUpScreen> {
   late final TextEditingController nameController;
   late final TextEditingController emailController;
   late final TextEditingController passwordController;
+  late ClientNetwork clientNetwork;
+  late RegisterServices registerServices;
+  bool isLoading = false;
+  Future _register() async {
+    if (_formKey.currentState?.validate() ?? false) {
+      setState(() {
+        isLoading = true;
+      });
+      try {
+        await registerServices.register(
+          RegisterRequest(
+            email: emailController.text.trim(),
+            password: passwordController.text.trim(),
+            name: nameController.text.trim(),
+          ),
+        );
+        setState(() {
+          isLoading = false;
+        });
+        if (!mounted) return;
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text("Create Account Successfully"),
+            backgroundColor: Colors.green,
+          ),
+        );
+        Navigator.pushReplacement(
+          context,
+          MaterialPageRoute(builder: (context) => const LoginScreen()),
+        );
+      } catch (e) {
+        setState(() {
+          isLoading = false;
+        });
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text(e.toString()), backgroundColor: Colors.red),
+        );
+      }
+    }
+  }
 
   @override
   void initState() {
     nameController = TextEditingController();
     emailController = TextEditingController();
     passwordController = TextEditingController();
-
+    clientNetwork = ClientNetwork();
+    registerServices = RegisterServices(clientNetwork: clientNetwork);
     super.initState();
   }
 
@@ -110,16 +154,8 @@ class _SignUpScreenState extends State<SignUpScreen> {
                 const SizedBox(height: 40),
                 PrimaryButton(
                   text: 'Sign Up',
-                  onPressed: () async {
-                    if (_formKey.currentState?.validate() ?? false) {
-                      Navigator.pushReplacement(
-                        context,
-                        MaterialPageRoute(
-                          builder: (context) => const LoginScreen(),
-                        ),
-                      );
-                    }
-                  },
+                  onPressed: _register,
+                  isLoading: isLoading,
                 ),
                 const SizedBox(height: 24),
                 Row(
