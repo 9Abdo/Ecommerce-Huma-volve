@@ -1,8 +1,9 @@
+import 'package:ecommerce_app_huma_volve/features/home/models/category_model.dart';
 import 'package:flutter/material.dart';
 import '../../../core/theme.dart';
 
 class CategoryChip extends StatelessWidget {
-  final String label;
+  final CategoryModels label;
   final bool isSelected;
   final VoidCallback onTap;
 
@@ -41,7 +42,7 @@ class CategoryChip extends StatelessWidget {
           ],
         ),
         child: Text(
-          label,
+          label.name??"",
           style: TextStyle(
             color: isSelected ? Colors.white : AppTheme.textSecondary,
             fontWeight: isSelected ? FontWeight.w600 : FontWeight.w500,
