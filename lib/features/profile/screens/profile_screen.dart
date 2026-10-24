@@ -1,8 +1,16 @@
+import 'package:ecommerce_app_huma_volve/core/storage/storage_helper.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+
 import '../../../core/dummy_data.dart';
+import '../../../core/network/client_network.dart';
 import '../../../core/theme.dart';
+import '../../auth/login/data/datasource/remote_log_in_data_source_impl.dart';
+import '../../auth/login/data/repo/log_in_repo_implement.dart';
+import '../../auth/login/domains/usecase/log_in_use_case.dart';
+import '../../auth/login/presentation/cubit/login_cubit.dart';
 import '../widgets/profile_menu_item.dart';
-import '../../auth/login/screens/login_screen.dart';
+import '../../auth/login/presentation/screens/login_screen.dart';
 
 class ProfileScreen extends StatelessWidget {
   const ProfileScreen({super.key});
@@ -17,10 +25,7 @@ class ProfileScreen extends StatelessWidget {
             const SizedBox(height: 24),
             const Text(
               'Profile',
-              style: TextStyle(
-                fontSize: 24,
-                fontWeight: FontWeight.bold,
-              ),
+              style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
             ),
             const SizedBox(height: 32),
             Stack(
@@ -50,18 +55,12 @@ class ProfileScreen extends StatelessWidget {
             const SizedBox(height: 16),
             Text(
               dummyUser.name,
-              style: const TextStyle(
-                fontSize: 24,
-                fontWeight: FontWeight.bold,
-              ),
+              style: const TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
             ),
             const SizedBox(height: 4),
             Text(
               dummyUser.email,
-              style: TextStyle(
-                fontSize: 16,
-                color: Colors.grey.shade600,
-              ),
+              style: TextStyle(fontSize: 16, color: Colors.grey.shade600),
             ),
             const SizedBox(height: 32),
             Expanded(
@@ -98,15 +97,47 @@ class ProfileScreen extends StatelessWidget {
                     icon: Icons.logout,
                     title: 'Logout',
                     isDestructive: true,
-                    onTap: () {
-                      Navigator.pushReplacement(
+                    onTap: () async {
+                      await StorageHelper.deleteAll();
+
+                      if (!context.mounted) return;
+
+                      Navigator.pushAndRemoveUntil(
                         context,
                         PageRouteBuilder(
-                          pageBuilder: (context, animation, secondaryAnimation) => const LoginScreen(),
-                          transitionsBuilder: (context, animation, secondaryAnimation, child) {
-                            return FadeTransition(opacity: animation, child: child);
-                          },
+                          pageBuilder:
+                              (context, animation, secondaryAnimation) {
+                                return BlocProvider(
+                                  create: (context) {
+                                    final clientNetwork = ClientNetwork();
+
+                                    final remoteDataSource =
+                                        RemoteLogInDataSourceImpl(
+                                          clientNetwork: clientNetwork,
+                                        );
+
+                                    final repository = LogInRepoImplement(
+                                      remoteLogInDataSource: remoteDataSource,
+                                    );
+
+                                    final useCase = LogInUseCase(
+                                      logInRepoDomain: repository,
+                                    );
+
+                                    return LoginCubit(logInUseCase: useCase);
+                                  },
+                                  child: LoginScreen(),
+                                );
+                              },
+                          transitionsBuilder:
+                              (context, animation, secondaryAnimation, child) {
+                                return FadeTransition(
+                                  opacity: animation,
+                                  child: child,
+                                );
+                              },
                         ),
+                        (route) => false,
                       );
                     },
                   ),

@@ -1,11 +1,17 @@
-import 'package:ecommerce_app_huma_volve/core/network/client_network.dart';
-import 'package:ecommerce_app_huma_volve/features/home/cubit/home_cubit.dart';
-import 'package:ecommerce_app_huma_volve/features/home/services/home_services.dart';
+import '../../../core/network/client_network.dart';
+import '../../home/data/datasource/remote_data_source_implemention.dart';
+import '../../home/data/datasource/remote_home_date_source.dart';
+import '../../home/data/repo/home_repo_implemention.dart';
+import '../../home/domain/repo/home_repo.dart';
+import '../../home/domain/usecase/get_category_use_case.dart';
+import '../../home/domain/usecase/get_product_use_case.dart';
+import '../../home/presentation/cubit/home_cubit.dart';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 import '../../../core/theme.dart';
-import '../../home/screens/home_screen.dart';
+import '../../home/presentation/screens/home_screen.dart';
 import '../../cart/screens/cart_screen.dart';
 import '../../profile/screens/profile_screen.dart';
 
@@ -18,14 +24,25 @@ class MainNavigationScreen extends StatefulWidget {
 
 class _MainNavigationScreenState extends State<MainNavigationScreen> {
   int _currentIndex = 0;
-  late HomeServices homeServices;
+  late GetProductUseCase getProductUseCase;
+  late GetCategoryUseCase getCategoryUseCase;
+  late HomeRepo homeRepo;
+  late RemoteHomeDateSource remoteHomeDateSource;
   late ClientNetwork clientNetwork;
   late HomeCubit homeCubit;
   @override
   void initState() {
     clientNetwork = ClientNetwork();
-    homeServices = HomeServices(clientNetwork);
-    homeCubit = HomeCubit(homeServices: homeServices);
+    remoteHomeDateSource = RemoteDataSourceImplemention(
+      clientNetwork: clientNetwork,
+    );
+    homeRepo = HomeRepoImplemention(remoteHomeDateSource: remoteHomeDateSource);
+    getCategoryUseCase = GetCategoryUseCase(homeRepo: homeRepo);
+    getProductUseCase = GetProductUseCase(homeRepo: homeRepo);
+    homeCubit = HomeCubit(
+      getCategoryUseCase: getCategoryUseCase,
+      getProductUseCase: getProductUseCase,
+    );
     super.initState();
   }
 
