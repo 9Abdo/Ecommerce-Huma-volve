@@ -28,3 +28,11 @@ class FailureProductState extends HomeState {
   final String error;
   FailureProductState({required this.error});
 }
+
+class LoadProductMoreState extends HomeState {}
+
+class LoadProductMoreError extends HomeState {
+  final String error;
+
+  LoadProductMoreError({required this.error});
+}

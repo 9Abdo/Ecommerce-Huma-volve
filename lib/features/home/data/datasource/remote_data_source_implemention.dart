@@ -1,7 +1,9 @@
 import 'dart:developer';
 
 import 'package:dio/dio.dart';
+
 import '../../../../core/network/client_network.dart';
+
 import 'package:ecommerce_app_huma_volve/features/home/data/datasource/remote_home_date_source.dart';
 import 'package:ecommerce_app_huma_volve/features/home/data/models/category_model.dart';
 import 'package:ecommerce_app_huma_volve/features/home/data/models/product_model.dart';
@@ -28,10 +30,12 @@ class RemoteDataSourceImplemention implements RemoteHomeDateSource {
   }
 
   @override
-  Future<List<ProductModel>> getProduct(int productId) async {
+  Future<List<ProductModel>> getProduct(int productId, {required int limit, required int offset})async {
     final Response response = await clientNetwork.dio.get(
       "${ApiEndpoint.categories}/$productId/${ApiEndpoint.products}",
+      queryParameters: {"limit": limit,"offset":offset},
     );
+    //https://api.escuelajs.co/api/v1/categories/5/products?limit=10&offset=0
     List productList = response.data;
     List<ProductModel> productModels = productList
         .map((e) => ProductModel.fromJson(e))
@@ -39,4 +43,6 @@ class RemoteDataSourceImplemention implements RemoteHomeDateSource {
 
     return productModels;
   }
+
+  
 }

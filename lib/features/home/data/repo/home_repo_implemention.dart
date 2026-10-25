@@ -26,12 +26,19 @@ class HomeRepoImplemention implements HomeRepo {
       );
     }
   }
+
   @override
   Future<Either<FailureApp, List<ProductEntity>>> getProduct(
-    int productId,
-  ) async {
+    int productId, {
+    required int offset,
+    required int limit,
+  }) async {
     try {
-      final products = await remoteHomeDateSource.getProduct(productId);
+      final products = await remoteHomeDateSource.getProduct(
+        productId,
+        limit: limit,
+        offset: offset,
+      );
       return Right(products as List<ProductEntity>);
     } catch (e) {
       return Left(
