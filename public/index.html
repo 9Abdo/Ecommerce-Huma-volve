@@ -1,0 +1,184 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="theme-color" content="#111827" />
+
+  <title>Huma Volve | Product Details</title>
+  <meta
+    name="description"
+    content="Discover this product from Huma Volve."
+  />
+
+  <style>
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      min-height: 100vh;
+      font-family: Arial, sans-serif;
+      background: #f5f6fa;
+      color: #171923;
+    }
+
+    header {
+      background: #111827;
+      color: white;
+      padding: 22px 7%;
+      font-size: 22px;
+      font-weight: bold;
+      letter-spacing: 1px;
+    }
+
+    main {
+      width: min(920px, 92%);
+      margin: 55px auto;
+    }
+
+    .card {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 32px;
+      align-items: center;
+      background: white;
+      padding: 28px;
+      border-radius: 20px;
+      box-shadow: 0 8px 30px #1118270d;
+    }
+
+    .product-image {
+      min-height: 280px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: #f1f2f6;
+      border-radius: 14px;
+      color: #6b7280;
+      text-align: center;
+      padding: 20px;
+    }
+
+    .product-info h1 {
+      font-size: 30px;
+      margin-bottom: 12px;
+    }
+
+    .product-info p {
+      color: #6b7280;
+      line-height: 1.7;
+    }
+
+    .product-id {
+      display: inline-block;
+      padding: 7px 12px;
+      background: #eef2ff;
+      color: #4338ca;
+      border-radius: 20px;
+      font-size: 13px;
+    }
+
+    .button {
+      display: inline-block;
+      margin-top: 18px;
+      padding: 14px 22px;
+      background: #111827;
+      color: white;
+      border-radius: 10px;
+      text-decoration: none;
+      font-weight: bold;
+    }
+
+    .button:hover {
+      background: #374151;
+    }
+
+    footer {
+      text-align: center;
+      padding: 24px;
+      color: #6b7280;
+      font-size: 13px;
+    }
+
+    @media (max-width: 650px) {
+      main {
+        margin: 28px auto;
+      }
+
+      .card {
+        grid-template-columns: 1fr;
+        padding: 18px;
+      }
+
+      .product-image {
+        min-height: 220px;
+      }
+
+      .product-info h1 {
+        font-size: 25px;
+      }
+    }
+  </style>
+</head>
+
+<body>
+  <header>HUMA VOLVE</header>
+
+  <main>
+    <section class="card">
+      <div class="product-image">
+        <p>Product image will appear here</p>
+      </div>
+
+      <div class="product-info">
+        <span class="product-id" id="productId">Product</span>
+
+        <h1>Discover this product</h1>
+
+        <p id="description">
+          This product was shared with you from Huma Volve.
+          Open the app to explore more details.
+        </p>
+
+        <a class="button" id="openApp" href="hummvolve://app">
+          Open in Huma Volve
+        </a>
+      </div>
+    </section>
+  </main>
+
+  <footer>
+    &copy; <span id="year"></span> Huma Volve
+  </footer>
+
+  <script>
+    const params = new URLSearchParams(window.location.search);
+    const pathParts = window.location.pathname.split("/").filter(Boolean);
+
+    // Supports /?productId=15 and /product/15
+    const productId =
+      params.get("productId") ||
+      (pathParts[0] === "product" ? pathParts[1] : null);
+
+    document.getElementById("year").textContent =
+      new Date().getFullYear();
+
+    if (productId) {
+      document.getElementById("productId").textContent =
+        `Product ID: ${productId}`;
+
+      document.getElementById("openApp").href =
+        `hummvolve://app?productId=${encodeURIComponent(productId)}`;
+    } else {
+      document.getElementById("productId").textContent =
+        "Welcome";
+
+      document.getElementById("description").textContent =
+        "Open a product sharing link to view the selected product.";
+    }
+  </script>
+</body>
+</html>

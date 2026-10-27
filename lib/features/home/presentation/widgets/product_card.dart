@@ -1,15 +1,28 @@
+import 'package:ecommerce_app_huma_volve/core/network/client_network.dart';
+import 'package:ecommerce_app_huma_volve/features/details/data/datasource/remot_data_source_details.dart';
+import 'package:ecommerce_app_huma_volve/features/details/data/repo/details_repo.dart';
+import 'package:ecommerce_app_huma_volve/features/details/domians/usecase/usecase_details.dart';
+import 'package:ecommerce_app_huma_volve/features/details/presentation/cubit/home_details_cubit.dart';
+
+import 'package:flutter_bloc/flutter_bloc.dart';
 
 import '../../domain/entity/product_entity.dart';
+
 import 'package:flutter/material.dart';
 
 import '../../../../core/theme.dart';
-import '../../../details/screens/product_details_screen.dart';
+import '../../../details/presentation/ui/screens/product_details_screen.dart';
 
-class ProductCard extends StatelessWidget {
+class ProductCard extends StatefulWidget {
   final ProductEntity product;
 
   const ProductCard({super.key, required this.product});
 
+  @override
+  State<ProductCard> createState() => _ProductCardState();
+}
+
+class _ProductCardState extends State<ProductCard> {
   @override
   Widget build(BuildContext context) {
     return GestureDetector(
@@ -19,7 +32,18 @@ class ProductCard extends StatelessWidget {
           PageRouteBuilder(
             transitionDuration: const Duration(milliseconds: 500),
             pageBuilder: (context, animation, secondaryAnimation) =>
-                ProductDetailsScreen(product: product),
+                BlocProvider(
+                  create: (context) => HomeDetailsCubit(
+                    getProductDetailsUseCase: GetProductDetailsUseCase(
+                      homeDetailsRepoAbstract: DetailsRepo(
+                        abstractDataSourceDetails: RemotDataSourceDetails(
+                          clientNetwork: ClientNetwork(),
+                        ),
+                      ),
+                    ),
+                  ),
+                  child: ProductDetailsScreen(productId: widget.product.id!),
+                ),
             transitionsBuilder:
                 (context, animation, secondaryAnimation, child) {
                   return FadeTransition(opacity: animation, child: child);
@@ -48,16 +72,17 @@ class ProductCard extends StatelessWidget {
               child: Stack(
                 children: [
                   Hero(
-                    tag: 'product-${product.id}',
+                    tag: 'product-${widget.product.id}',
 
                     child: ClipRRect(
                       borderRadius: const BorderRadius.vertical(
                         top: Radius.circular(24),
                       ),
                       child:
-                          (product.images != null && product.images!.isNotEmpty)
+                          (widget.product.images != null &&
+                              widget.product.images!.isNotEmpty)
                           ? Image.network(
-                              product.images![0],
+                              widget.product.images![0],
                               fit: BoxFit.cover,
                               width: double.infinity,
                               height: double.infinity,
@@ -102,7 +127,7 @@ class ProductCard extends StatelessWidget {
                   mainAxisAlignment: MainAxisAlignment.end,
                   children: [
                     Text(
-                      product.title ?? "",
+                      widget.product.title ?? "",
                       style: const TextStyle(
                         fontWeight: FontWeight.w600,
                         fontSize: 16,
@@ -116,7 +141,7 @@ class ProductCard extends StatelessWidget {
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
                         Text(
-                          '\$${product.price!.toStringAsFixed(2)}',
+                          '\$${widget.product.price!.toStringAsFixed(2)}',
                           style: const TextStyle(
                             color: AppTheme.primary,
                             fontWeight: FontWeight.bold,
